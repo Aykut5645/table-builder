@@ -2,6 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from './store';
 
 export type BaseThemes = 'quartz' | 'balham' | 'alpine';
+// export type ColorSchemes =
+//   | 'light'
+//   | 'lightCold'
+//   | 'lightWarm'
+//   | 'dark'
+//   | 'darkBlue'
+//   | 'darkWarm';
 export type ColorSchemes =
   | 'colorScheme/light'
   | 'colorScheme/lightCold'
@@ -21,6 +28,7 @@ type ThemeState = {
   colorScheme: ColorSchemes;
   iconSet: IconSet;
   params: { [key: string]: any };
+  dimensions: { width: number; height: number };
 };
 
 const initialState: ThemeState = {
@@ -28,6 +36,7 @@ const initialState: ThemeState = {
   colorScheme: 'colorScheme/light',
   iconSet: 'iconSet/quartzLight',
   params: {},
+  dimensions: { width: 0, height: 0 },
 };
 
 const tableSlice = createSlice({
@@ -48,17 +57,29 @@ const tableSlice = createSlice({
     changeThemeParams(state, action: PayloadAction<{ [key: string]: any }>) {
       state.params = { ...state.params, ...action.payload };
     },
+    changeDimensions(
+      state,
+      action: PayloadAction<{ width?: number; height?: number }>
+    ) {
+      state.dimensions = { ...state.dimensions, ...action.payload };
+    },
   },
 });
 
 // Actions
-export const { setBaseTheme, setColorScheme, setIconSet, changeThemeParams } =
-  tableSlice.actions;
+export const {
+  setBaseTheme,
+  setColorScheme,
+  setIconSet,
+  changeThemeParams,
+  changeDimensions,
+} = tableSlice.actions;
 
 // Selectors
 export const selectBaseTheme = (state: RootState) => state.table.baseTheme;
 export const selectColorScheme = (state: RootState) => state.table.colorScheme;
 export const selectIconSet = (state: RootState) => state.table.iconSet;
 export const selectParams = (state: RootState) => state.table.params;
+export const selectDimensions = (state: RootState) => state.table.dimensions;
 
 export default tableSlice.reducer;

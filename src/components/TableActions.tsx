@@ -13,13 +13,14 @@ import {
   selectIsColumnsEditMode,
   startColumnsEditMode,
 } from '../store/columnSlice';
+import { addRow } from '../apis/tablesApi';
 
 const TableActions = ({ gridRef }: { gridRef: React.RefObject<any> }) => {
   const dispatch = useDispatch();
   const startEditColumnHeaders = useSelector(selectIsColumnsEditMode);
 
   const handleAddRow = () => {
-    dispatch(addRows({ make: '', model: '', price: 0, electric: false }));
+    addRow({ make: '', model: '', price: 0, electric: false });
   };
 
   const handleDeleteRow = () => {
@@ -98,13 +99,15 @@ const TableActions = ({ gridRef }: { gridRef: React.RefObject<any> }) => {
           Delete Last Column
         </Button>
         <Button onClick={handleEditColumnHeader}>
-          {startEditColumnHeaders ? 'Stop Column Headers' : 'Change Column Headers'}
+          {startEditColumnHeaders
+            ? 'Stop Column Headers'
+            : 'Change Column Headers'}
         </Button>
       </Space>
 
       <Button
         type="primary"
-        // size="large"
+        size="large"
         icon={<DownloadOutlined />}
         onClick={captureTableAsImage}
       >

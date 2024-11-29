@@ -2,6 +2,7 @@ import { Layout, theme } from 'antd';
 
 import Title from './Title.tsx';
 import TableSettings from '../components/TableSettings/TableSettings.tsx';
+import TableList from '../components/TableList.tsx';
 
 const { Sider: AntSider } = Layout;
 
@@ -48,6 +49,7 @@ const Sider = ({ collapsed }: CustomSiderProps) => {
         }}
       >
         <TableSettings />
+        <TableList />
       </div>
     </AntSider>
   );

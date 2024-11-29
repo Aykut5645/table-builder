@@ -28,11 +28,200 @@ import {
   AG_GRID_ICON_SET,
 } from '../../utils/constants';
 import { useDispatch, useSelector } from 'react-redux';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  fetchTableById,
+  updateBaseTheme,
+  updateColorScheme,
+  updateIconSet,
+  updateParams,
+} from '../../apis/tablesApi';
+import { queryClient } from '../../main';
 
 const TableSettings = () => {
-  const dispatch = useDispatch();
+  const { data: table } = useQuery({
+    queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+    queryFn: () => fetchTableById('0bfc39f3-faea-4222-ae5d-668adfbe9147'),
+  });
 
-  const theme = useSelector(selectBaseTheme);
+  const themeMutation = useMutation({
+    mutationFn: updateBaseTheme,
+    // When mutate is called:
+    onMutate: async (newBaseTheme: string) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({
+        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+      });
+
+      // Snapshot the previous value
+      const previousTable = queryClient.getQueryData([
+        'tables',
+        '0bfc39f3-faea-4222-ae5d-668adfbe9147',
+      ]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(
+        ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+        (old: any) => ({
+          ...old,
+          baseTheme: newBaseTheme,
+        })
+      );
+
+      return { previousTable };
+    },
+    // If the mutation fails, use the context we returned above
+    /*onError: (err, newTodo, context) => {
+      queryClient.setQueryData(
+        ['tables', context.newTodo.id],
+        context.previousTodo
+      );
+    },*/
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+      });
+    },
+  });
+
+  const colorSchemeMutation = useMutation({
+    mutationFn: updateColorScheme,
+    // When mutate is called:
+    onMutate: async (newColorScheme: string) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({
+        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+      });
+
+      // Snapshot the previous value
+      const previousTable = queryClient.getQueryData([
+        'tables',
+        '0bfc39f3-faea-4222-ae5d-668adfbe9147',
+      ]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(
+        ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+        (old: any) => ({
+          ...old,
+          colorScheme: newColorScheme,
+        })
+      );
+
+      return { previousTable };
+    },
+    // If the mutation fails, use the context we returned above
+    /*onError: (err, newTodo, context) => {
+      queryClient.setQueryData(
+        ['tables', context.newTodo.id],
+        context.previousTodo
+      );
+    },*/
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+      });
+    },
+  });
+
+  const iconSetMutation = useMutation({
+    mutationFn: updateIconSet,
+    // When mutate is called:
+    onMutate: async (newIconSet: string) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({
+        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+      });
+
+      // Snapshot the previous value
+      const previousTable = queryClient.getQueryData([
+        'tables',
+        '0bfc39f3-faea-4222-ae5d-668adfbe9147',
+      ]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(
+        ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+        (old: any) => ({
+          ...old,
+          iconSet: newIconSet,
+        })
+      );
+
+      return { previousTable };
+    },
+    // If the mutation fails, use the context we returned above
+    /*onError: (err, newTodo, context) => {
+      queryClient.setQueryData(
+        ['tables', context.newTodo.id],
+        context.previousTodo
+      );
+    },*/
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+      });
+    },
+  });
+
+  const paramsMutation = useMutation({
+    mutationFn: async ({
+      tableData,
+      newParams,
+    }: {
+      tableData: any;
+      newParams: any;
+    }) => updateParams(tableData, newParams),
+    // When mutate is called:
+    onMutate: async ({ tableData, newParams }) => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({
+        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+      });
+
+      // Snapshot the previous value
+      const previousTable = queryClient.getQueryData([
+        'tables',
+        '0bfc39f3-faea-4222-ae5d-668adfbe9147',
+      ]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(
+        ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+        (old: any) => ({
+          ...old,
+          params: {
+            ...tableData.params, // Use the current table params
+            ...newParams, // Merge with the new parameters
+          },
+        })
+      );
+
+      return { previousTable };
+    },
+    // If the mutation fails, use the context we returned above
+    /*onError: (err, newTodo, context) => {
+      queryClient.setQueryData(
+        ['tables', context.newTodo.id],
+        context.previousTodo
+      );
+    },*/
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
+      });
+    },
+  });
+
+  // const theme = useSelector(selectBaseTheme);
   const colorScheme = useSelector(selectColorScheme);
   const iconSet = useSelector(selectIconSet);
 
@@ -42,14 +231,16 @@ const TableSettings = () => {
       <Collapse.Panel header="General" key="1">
         <PartSelector
           label="Theme"
-          value={theme}
-          setValue={(value) => dispatch(setBaseTheme(value as BaseThemes))}
+          value={table?.baseTheme}
+          setValue={(value) => themeMutation.mutate(value as BaseThemes)}
           options={Object.values(AG_GRID_THEMES)}
         />
         <PartSelector
           label="Color Scheme"
           value={colorScheme}
-          setValue={(value) => dispatch(setColorScheme(value as ColorSchemes))}
+          setValue={(value) =>
+            colorSchemeMutation.mutate(value as ColorSchemes)
+          }
           options={Object.values(AG_GRID_COLOR_SCHEMES)}
         />
         <FontSettings fontKey="fontFamily/fontFamily" />
@@ -57,6 +248,12 @@ const TableSettings = () => {
           label="Background Color"
           colorKey="backgroundColor"
           defaultValue="#FFF"
+          saveValue={(value) => {
+            paramsMutation.mutate({
+              tableData: table, // Pass the current table data
+              newParams: value, // Pass the new parameter value
+            });
+          }}
         />
         <ColorPicker
           label="Foreground Color"
@@ -160,7 +357,7 @@ const TableSettings = () => {
         <PartSelector
           label="Icon Set"
           value={iconSet}
-          setValue={(value) => dispatch(setIconSet(value as IconSet))}
+          setValue={(value) => iconSetMutation.mutate(value as IconSet)}
           options={Object.values(AG_GRID_ICON_SET)}
         />
         <InputNumber label="Size" inputKey="iconSize" defaultValue={16} />

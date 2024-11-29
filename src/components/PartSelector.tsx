@@ -16,7 +16,7 @@ const PartSelector = <T extends { id: string; variant?: string } | null>({
   const handleChange = (value: string) => {
     setValue(value);
   };
-  
+
   return (
     <Flex vertical gap={4}>
       <label>{label}</label>

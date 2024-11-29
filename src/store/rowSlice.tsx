@@ -13,6 +13,13 @@ type RowState = {
   rows: Row[];
 };
 
+// export type Column = ColDef<Row>;
+
+type ColumnState = {
+  isEditMode: boolean;
+  columns: any;
+};
+
 const initialState: RowState = {
   rows: [
     {
