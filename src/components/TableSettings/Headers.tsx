@@ -1,0 +1,143 @@
+import ColorPicker from '../../ui/ColorPicker';
+import InputNumber from '../../ui/InputNumber';
+import { ColumnHeightOutlined } from '@ant-design/icons';
+import { updateParams } from '../../apis';
+import { queryClient } from '../../main';
+import {
+  FONT_WEIGHT_OPTIONS,
+  FONT_FAMILY_OPTIONS,
+  FONT_UTILITY_DATA,
+} from '../../utils/constants';
+import { Flex } from 'antd';
+import Select from '../../ui/Select';
+import { useOptimisticMutation } from '../../hooks/useOptimisticMutation';
+import { FontFamilyType, TableType, ThemeParamsType } from '../../types/Table';
+
+export const getFontFamilyValue = (fontFamily?: FontFamilyType): string => {
+  if (!fontFamily) return FONT_FAMILY_OPTIONS.at(0)!.value;
+  if (typeof fontFamily === 'string') return fontFamily;
+  if (
+    typeof fontFamily === 'object' &&
+    !Array.isArray(fontFamily) &&
+    'googleFont' in fontFamily
+  ) {
+    return fontFamily.googleFont;
+  }
+  return FONT_FAMILY_OPTIONS.at(0)!.value;
+};
+
+const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
+  const paramsMutation = useOptimisticMutation({
+    mutationFn: async ({
+      tableData,
+      newParams,
+    }: {
+      tableData: TableType;
+      newParams: ThemeParamsType;
+    }) => updateParams(tableData, newParams),
+    queryKey: ['tables', tableId],
+    onMutate: async ({ tableData, newParams }) => {
+      queryClient.setQueryData(['tables', tableId], (old: TableType) => ({
+        ...old,
+        params: {
+          ...tableData.params,
+          ...newParams,
+        },
+      }));
+    },
+  });
+
+  return (
+    <>
+      <ColorPicker
+        showText
+        label="Text Color"
+        colorKey="headerTextColor"
+        value={table.params.headerTextColor}
+        saveValue={(value) => {
+          paramsMutation.mutate({
+            tableData: table,
+            newParams: value,
+          });
+        }}
+      />
+      <ColorPicker
+        label="Background Color"
+        colorKey="headerBackgroundColor"
+        value={table.params.headerBackgroundColor}
+        saveValue={(value) => {
+          paramsMutation.mutate({
+            tableData: table,
+            newParams: value,
+          });
+        }}
+      />
+      <Flex gap={12} justify="space-between">
+        <Select
+          label="Font Family"
+          selectKey="headerFontFamily"
+          styles={{ width: 180 }}
+          options={FONT_FAMILY_OPTIONS}
+          utilityData={FONT_UTILITY_DATA}
+          defaultValue={FONT_FAMILY_OPTIONS.at(0)!.value}
+          value={getFontFamilyValue(table.params.headerFontFamily)}
+          saveValue={(value) => {
+            paramsMutation.mutate({
+              tableData: table,
+              newParams: value,
+            });
+          }}
+        />
+        <InputNumber
+          min={1}
+          value={table.params.headerFontSize}
+          label="Font Size"
+          inputKey="headerFontSize"
+          defaultValue={14}
+          saveValue={(value) => {
+            paramsMutation.mutate({
+              tableData: table,
+              newParams: value,
+            });
+          }}
+        />
+      </Flex>
+      <Select
+        label="Font weight"
+        value={
+          table.params.headerFontWeight || FONT_WEIGHT_OPTIONS.at(3)!.value
+        }
+        defaultValue={FONT_WEIGHT_OPTIONS.at(3)!.value}
+        selectKey="headerFontWeight"
+        options={FONT_WEIGHT_OPTIONS}
+        saveValue={(value) => {
+          paramsMutation.mutate({
+            tableData: table,
+            newParams: value,
+          });
+        }}
+      />
+      <InputNumber
+        min={1}
+        isPercent={true}
+        label="Adjust vertical padding"
+        inputKey="headerVerticalPaddingScale"
+        prefix={<ColumnHeightOutlined />}
+        value={
+          table.params.headerVerticalPaddingScale
+            ? Math.round(table.params.headerVerticalPaddingScale * 100)
+            : 100
+        }
+        defaultValue={100}
+        saveValue={(value) => {
+          paramsMutation.mutate({
+            tableData: table,
+            newParams: value,
+          });
+        }}
+      />
+    </>
+  );
+};
+
+export default Headers;

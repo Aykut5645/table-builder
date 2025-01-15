@@ -2,15 +2,10 @@ import { Layout, theme } from 'antd';
 
 import Title from './Title.tsx';
 import TableSettings from '../components/TableSettings/TableSettings.tsx';
-import TableList from '../components/TableList.tsx';
 
 const { Sider: AntSider } = Layout;
 
-type CustomSiderProps = {
-  collapsed: boolean;
-};
-
-const Sider = ({ collapsed }: CustomSiderProps) => {
+const Sider = ({ collapsed }: { collapsed: boolean }) => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -49,7 +44,6 @@ const Sider = ({ collapsed }: CustomSiderProps) => {
         }}
       >
         <TableSettings />
-        <TableList />
       </div>
     </AntSider>
   );

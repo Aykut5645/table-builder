@@ -1,34 +1,30 @@
-import { ColorPicker as AntColorPicker, Flex } from 'antd';
+import {
+  Flex,
+  ColorPicker as AntColorPicker,
+  ColorPickerProps as AntColorPickerProps,
+} from 'antd';
 import { Color } from 'antd/es/color-picker';
-import { changeThemeParams } from '../store/tableSlice';
 
 type ColorPickerProps = {
   label: string;
   colorKey: string;
-  defaultValue?: string;
-  saveValue: (value: Color) => void;
-};
+  saveValue: (value: { [key: string]: string }) => void;
+} & AntColorPickerProps;
 
 const ColorPicker = ({
   label,
   colorKey,
-  defaultValue,
   saveValue,
+  ...props
 }: ColorPickerProps) => {
-  // const dispatch = useDispatch();
-
-  const handleChange = (value: Color) => {
-    saveValue({ [colorKey]: value.toHexString() });
+  const handleChange = (color: Color) => {
+    saveValue({ [colorKey]: color.toHexString() });
   };
 
   return (
     <Flex vertical gap={4}>
       <label>{label}</label>
-      <AntColorPicker
-        showText
-        defaultValue={defaultValue}
-        onChangeComplete={handleChange}
-      />
+      <AntColorPicker {...props} onChangeComplete={handleChange} />
     </Flex>
   );
 };

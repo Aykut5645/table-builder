@@ -1,51 +1,42 @@
-import { CSSProperties, ReactNode } from 'react';
+import { CSSProperties } from 'react';
 import { Flex, InputNumber as AntInputNumber } from 'antd';
-
-import { useDispatch } from 'react-redux';
-import { changeThemeParams } from '../store/tableSlice';
+import { InputNumberProps as AntInputNumberProps } from 'antd/es/input-number';
 
 type InputNumberProps = {
   label: string;
   inputKey: string;
-  defaultValue?: number;
-  min?: number;
-  max?: number;
   isPercent?: boolean;
   styles?: CSSProperties;
-  prefix?: ReactNode;
-  size?: 	'large' | 'middle' | 'small';
-};
+  saveValue: (value: { [key: string]: number | string }) => void;
+} & AntInputNumberProps;
 
 const InputNumber = ({
-  min,
-  max,
   label,
   inputKey,
-  defaultValue,
   isPercent,
   styles,
-  prefix,
+  saveValue,
+  ...props
 }: InputNumberProps) => {
-  const dispatch = useDispatch();
+  const handleChange = (value: number | string | null) => {
+    if (value) {
+      const modifiedValue = isPercent
+        ? parseFloat((+value / 100).toFixed(2))
+        : value;
 
-  const handleChange = (value: number | null) => {
-    dispatch(
-      changeThemeParams({
-        [inputKey]: isPercent && value !== null ? value / 100 : value,
-      })
-    );
+      saveValue({
+        [inputKey]: modifiedValue,
+      });
+    }
   };
 
   return (
     <Flex vertical gap={4}>
       <label>{label}</label>
       <AntInputNumber
-        min={min}
-        max={max}
-        defaultValue={defaultValue}
+        {...props}
         onChange={handleChange}
         style={{ width: '100%', ...styles }}
-        prefix={prefix}
       />
     </Flex>
   );

@@ -13,30 +13,32 @@ import {
   iconSetQuartzBold,
   iconSetQuartzLight,
   iconSetQuartzRegular,
-} from '@ag-grid-community/theming';
+  // colorSchemeVariable,
+} from 'ag-grid-community';
 
-export const AG_GRID_THEMES = {
-  quartz: themeQuartz,
-  balham: themeBalham,
-  alpine: themeAlpine,
-};
+export const BASE_THEMES = [
+  { id: 'quartz', value: themeQuartz },
+  { id: 'balham', value: themeBalham },
+  { id: 'alpine', value: themeAlpine },
+];
 
-export const AG_GRID_COLOR_SCHEMES = {
-  'colorScheme/light': colorSchemeLight,
-  'colorScheme/lightCold': colorSchemeLightCold,
-  'colorScheme/lightWarm': colorSchemeLightWarm,
-  'colorScheme/dark': colorSchemeDark,
-  'colorScheme/darkBlue': colorSchemeDarkWarm,
-  'colorScheme/darkWarm': colorSchemeDarkBlue,
-};
+export const COLOR_SCHEMES = [
+  { id: 'light', value: colorSchemeLight },
+  { id: 'lightCold', value: colorSchemeLightCold },
+  { id: 'lightWarm', value: colorSchemeLightWarm },
+  { id: 'dark', value: colorSchemeDark },
+  { id: 'darkWarm', value: colorSchemeDarkWarm },
+  { id: 'darkBlue', value: colorSchemeDarkBlue },
+  // TODO: { id: "colorSchemeVariable", value: colorSchemeVariable },
+];
 
-export const AG_GRID_ICON_SET = {
-  'iconSet/quartzLight': iconSetQuartzLight,
-  'iconSet/quartzRegular': iconSetQuartzRegular,
-  'iconSet/quartzBold': iconSetQuartzBold,
-  'iconSet/alpine': iconSetAlpine,
-  'iconSet/material': iconSetMaterial,
-};
+export const ICON_SETS = [
+  { id: 'quartzLight', value: iconSetQuartzLight },
+  { id: 'quartzRegular', value: iconSetQuartzRegular },
+  { id: 'quartzBold', value: iconSetQuartzBold },
+  { id: 'alpine', value: iconSetAlpine },
+  { id: 'material', value: iconSetMaterial },
+];
 
 export const FONT_FAMILY_OPTIONS = [
   { value: 'IBM Plex Sans', label: 'IBM Plex Sans' },
@@ -52,15 +54,15 @@ export const FONT_FAMILY_OPTIONS = [
 ];
 
 export const FONT_WEIGHT_OPTIONS = [
-  { value: '100', label: 'Thin (100)' },
-  { value: '200', label: 'Extra Light (200)' },
-  { value: '300', label: 'Light (300)' },
-  { value: '400', label: 'Normal (400)' },
-  { value: '500', label: 'Medium (500)' },
-  { value: '600', label: 'Extra Medium (600)' },
-  { value: '700', label: 'Bold (700)' },
-  { value: '800', label: 'Extra Bold (800)' },
-  { value: '900', label: 'Black (900)' },
+  { value: 100, label: 'Thin (100)' },
+  { value: 200, label: 'Extra Light (200)' },
+  { value: 300, label: 'Light (300)' },
+  { value: 400, label: 'Normal (400)' },
+  { value: 500, label: 'Medium (500)' },
+  { value: 600, label: 'Extra Medium (600)' },
+  { value: 700, label: 'Bold (700)' },
+  { value: 800, label: 'Extra Bold (800)' },
+  { value: 900, label: 'Black (900)' },
 ];
 
 export const FONT_UTILITY_DATA = {
@@ -85,8 +87,22 @@ export const BORDERS_OPTIONS = [
 ];
 
 export const BORDERS_UTILITY_DATA = {
-  'Around grid': { wrapperBorder: true },
-  'Between rows': { rowBorder: true },
-  'Between columns': { columnBorder: true },
-  'Around side panel': { sidePanelBorder: true },
+  'Around grid': { wrapperBorder: false },
+  'Between rows': { rowBorder: false },
+  'Between columns': { columnBorder: false },
+  'Around side panel': { sidePanelBorder: false },
 };
+
+export const BORDER_TYPES = {
+  AROUND_GRID: 'Around grid',
+  BETWEEN_ROWS: 'Between rows',
+  BETWEEN_COLUMNS: 'Between columns',
+  AROUND_SIDE_PANEL: 'Around side panel',
+};
+
+export const CELL_TYPES = {
+  text: 'text',
+  number: 'number',
+  boolean: 'boolean',
+};
+

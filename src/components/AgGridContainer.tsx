@@ -1,22 +1,22 @@
 import { ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
 
-import { fetchTableById } from '../apis/tablesApi';
+type AgGridContainerProps = {
+  children: ReactNode;
+  tWidth: number;
+  tHeight: number;
+};
 
-const AgGridContainer = ({ children }: { children: ReactNode }) => {
-  const { data: table, isLoading } = useQuery({
-    queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
-    queryFn: () => fetchTableById('0bfc39f3-faea-4222-ae5d-668adfbe9147'),
-  });
-
-  if (isLoading) return <div>Loading...</div>;
-
+const AgGridContainer = ({
+  children,
+  tWidth,
+  tHeight,
+}: AgGridContainerProps) => {
   return (
     <div
       id="myGrid"
       style={{
-        width: table.dimensions.width || '100%',
-        height: table.dimensions.height,
+        width: tWidth || "100%",
+        height: tHeight,
       }}
     >
       {children}

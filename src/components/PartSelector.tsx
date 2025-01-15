@@ -1,10 +1,10 @@
 import { Select, Flex } from 'antd';
 
 type PartSelectorProps<T extends { id: string } | null> = {
+  label: string;
   options: T[];
   value: string;
   setValue: (value: string) => void;
-  label: string;
 };
 
 const PartSelector = <T extends { id: string; variant?: string } | null>({

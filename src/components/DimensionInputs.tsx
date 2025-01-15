@@ -1,86 +1,55 @@
-import { InputNumber, Space, Flex } from 'antd';
+import { InputNumber, Space, Flex, Button } from 'antd';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { fetchTableById, updateDimensions } from '../apis/tablesApi';
+import { updateDimensions } from '../apis';
 import { queryClient } from '../main';
+import { useTableContext } from '../hooks/useTableContext';
+import { DimensionsType, TableType } from '../types/Table';
+import { useOptimisticMutation } from '../hooks/useOptimisticMutation';
 
-const DimensionInputs = () => {
-  const { data: table, isLoading } = useQuery({
-    queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
-    queryFn: () => fetchTableById('0bfc39f3-faea-4222-ae5d-668adfbe9147'),
-  });
+type DimensionInputsProps = {
+  tWidth: number;
+  tHeight: number;
+};
 
-  const dimensionsMutiation = useMutation({
+const DimensionInputs = ({ tWidth, tHeight }: DimensionInputsProps) => {
+  const { tableId } = useTableContext();
+
+  const paramsMutation = useOptimisticMutation({
     mutationFn: async ({
-      tableData,
-      dimensions,
+      currentDimensions,
+      dimension,
+      tableId,
     }: {
-      tableData: any;
-      dimensions: { width?: number; height?: number };
-    }) => updateDimensions(tableData, dimensions),
-    onMutate: async ({
-      tableData,
-      dimensions,
-    }: {
-      tableData: any;
-      dimensions: { width?: number; height?: number };
-    }) => {
-      // Cancel any outgoing refetches
-      // (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries({
-        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
-      });
-
-      // Snapshot the previous value
-      const previousTable = queryClient.getQueryData([
-        'tables',
-        '0bfc39f3-faea-4222-ae5d-668adfbe9147',
-      ]);
-      console.log('Dimensions => ', dimensions);
-      // Optimistically update to the new value
-      queryClient.setQueryData(
-        ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
-        (old: any) => {
-          return {
-            ...old,
-            dimensions: {
-              ...tableData.dimensions, // Merge the existing dimensions
-              ...dimensions, // Overwrite with the new dimensions
-            },
-          };
-        }
-      );
-
-      return { previousTable };
-    },
-    // If the mutation fails, use the context we returned above
-    /*onError: (err, newTodo, context) => {
-      queryClient.setQueryData(
-        ['tables', context.newTodo.id],
-        context.previousTodo
-      );
-    },*/
-    // Always refetch after error or success:
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['tables', '0bfc39f3-faea-4222-ae5d-668adfbe9147'],
-      });
+      currentDimensions: DimensionsType;
+      dimension: DimensionsType;
+      tableId: string;
+    }) => updateDimensions(currentDimensions, dimension, tableId),
+    queryKey: ['tables', tableId],
+    onMutate: async ({ currentDimensions, dimension, tableId }) => {
+      queryClient.setQueryData(['tables', tableId], (old: TableType) => ({
+        ...old,
+        dimensions: {
+          ...currentDimensions,
+          ...dimension,
+        },
+      }));
     },
   });
-
-  if (isLoading) return <div>Loading...</div>;
 
   return (
-    <Flex justify="center" style={{ marginTop: '20px' }}>
+    <Flex justify="center" style={{ marginTop: '20px', marginBottom: '20px' }}>
       <Space>
         <label>Width</label>
         <InputNumber
           size="small"
-          defaultValue={table.dimensions.width}
+          value={tWidth}
+          defaultValue={0}
+          min={0}
           onChange={(value) =>
-            dimensionsMutiation.mutate({
-              tableData: table,
-              dimensions: { width: value },
+            paramsMutation.mutate({
+              currentDimensions: { width: tWidth, height: tHeight },
+              dimension: { width: value ?? tWidth },
+              tableId,
             })
           }
         />
@@ -88,14 +57,30 @@ const DimensionInputs = () => {
         <label>Height</label>
         <InputNumber
           size="small"
-          defaultValue={table.dimensions.height}
+          value={tHeight}
+          defaultValue={0}
+          min={0}
           onChange={(value) =>
-            dimensionsMutiation.mutate({
-              tableData: table,
-              dimensions: { height: value },
+            paramsMutation.mutate({
+              currentDimensions: { width: tWidth, height: tHeight },
+              dimension: { height: value ?? tWidth },
+              tableId,
             })
           }
         />
+
+        <Button
+          size="small"
+          onClick={() =>
+            paramsMutation.mutate({
+              currentDimensions: { width: 0, height: 0 },
+              dimension: {},
+              tableId,
+            })
+          }
+        >
+          Reset
+        </Button>
       </Space>
     </Flex>
   );
