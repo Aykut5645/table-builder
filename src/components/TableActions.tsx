@@ -92,6 +92,7 @@ const TableActions = ({
       const cellDataType = column.getUserProvidedColDef()?.cellDataType;
       const colId = column.getColId();
       if (cellDataType === 'boolean') acc[colId] = false;
+      else if (cellDataType === 'number') acc[colId] = 0;
       else acc[colId] = '';
       return acc;
     }, {} as RowDataType);

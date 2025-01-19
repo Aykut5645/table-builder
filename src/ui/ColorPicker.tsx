@@ -17,14 +17,22 @@ const ColorPicker = ({
   saveValue,
   ...props
 }: ColorPickerProps) => {
-  const handleChange = (color: Color) => {
-    saveValue({ [colorKey]: color.toHexString() });
+  const handleChange = (color: Color | null) => {
+    if (color !== null && color.cleared === false) {
+      saveValue({ [colorKey]: color.toHexString() });
+    } else {
+      saveValue({ [colorKey]: props.defaultValue as string });
+    }
   };
 
   return (
     <Flex vertical gap={4}>
       <label>{label}</label>
-      <AntColorPicker {...props} onChangeComplete={handleChange} />
+      <AntColorPicker
+        {...props}
+        onChangeComplete={handleChange}
+        onClear={() => handleChange(null)}
+      />
     </Flex>
   );
 };

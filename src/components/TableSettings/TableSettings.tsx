@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Collapse } from 'antd';
+import { Collapse, Flex, Skeleton } from 'antd';
 
 import General from './General';
 import BordersSpacing from './BordersSpasing';
@@ -7,9 +7,9 @@ import Headers from './Headers';
 import Cells from './Cells';
 import Icons from './Icons';
 import { fetchTableById } from '../../apis';
+import { useTableContext } from '../../hooks/useTableContext';
 import { createItem } from '../../utils/helpers';
 import { TableType } from '../../types/Table';
-import { useTableContext } from '../../hooks/useTableContext';
 
 const TableSettings = () => {
   const { tableId } = useTableContext();
@@ -18,7 +18,21 @@ const TableSettings = () => {
     queryFn: () => fetchTableById(tableId),
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <Flex vertical gap={8}>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton.Input
+            key={i}
+            style={{ width: '100%' }}
+            size="large"
+            active={true}
+          />
+        ))}
+      </Flex>
+    );
+  }
+
   if (!table) return <div>No table found.</div>;
 
   return (

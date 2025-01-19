@@ -6,8 +6,16 @@ import ColorPicker from '../../ui/ColorPicker';
 import InputNumber from '../../ui/InputNumber';
 import { updateParams } from '../../apis';
 import { useOptimisticMutation } from '../../hooks/useOptimisticMutation';
+import { useState } from 'react';
 
 const Cells = ({ table, tableId }: { table: TableType; tableId: string }) => {
+  const [localCellTextColor, setLocalCellTextColor] = useState(
+    table.params.cellTextColor
+  );
+  const [localRowBackgroundColor, setLocalRowBackgroundColor] = useState(
+    table.params.oddRowBackgroundColor
+  );
+
   const paramsMutation = useOptimisticMutation({
     mutationFn: async ({
       tableData,
@@ -18,13 +26,21 @@ const Cells = ({ table, tableId }: { table: TableType; tableId: string }) => {
     }) => updateParams(tableData, newParams),
     queryKey: ['tables', tableId],
     onMutate: async ({ tableData, newParams }) => {
-      queryClient.setQueryData(['tables', tableId], (old: TableType) => ({
-        ...old,
-        params: {
-          ...tableData.params,
-          ...newParams,
-        },
-      }));
+      queryClient.setQueryData(['tables', tableId], (old: TableType) => {
+        if ('cellTextColor' in newParams) {
+          setLocalCellTextColor(newParams.cellTextColor as string);
+        }
+        if ('oddRowBackgroundColor' in newParams) {
+          setLocalRowBackgroundColor(newParams.oddRowBackgroundColor as string);
+        }
+        return {
+          ...old,
+          params: {
+            ...tableData.params,
+            ...newParams,
+          },
+        };
+      });
     },
   });
 
@@ -32,9 +48,11 @@ const Cells = ({ table, tableId }: { table: TableType; tableId: string }) => {
     <>
       <ColorPicker
         showText
+        allowClear
         label="Text Color"
         colorKey="cellTextColor"
-        value={table.params.cellTextColor}
+        defaultValue="#181d1f"
+        value={localCellTextColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
@@ -44,9 +62,11 @@ const Cells = ({ table, tableId }: { table: TableType; tableId: string }) => {
       />
       <ColorPicker
         showText
+        allowClear
         label="Odd row background"
+        defaultValue="#fff"
+        value={localRowBackgroundColor}
         colorKey="oddRowBackgroundColor"
-        value={table.params.oddRowBackgroundColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,

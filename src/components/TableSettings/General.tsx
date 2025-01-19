@@ -19,6 +19,7 @@ import {
   FontFamilyType,
   ColorSchemesType,
 } from '../../types/Table';
+import { useState } from 'react';
 
 export const getFontFamilyValue = (fontFamily?: FontFamilyType): string => {
   if (!fontFamily) return FONT_FAMILY_OPTIONS.at(0)!.value;
@@ -34,6 +35,16 @@ export const getFontFamilyValue = (fontFamily?: FontFamilyType): string => {
 };
 
 const General = ({ table, tableId }: { table: TableType; tableId: string }) => {
+  const [localBackgroundColor, setLocalBackgroundColor] = useState(
+    table.params.backgroundColor
+  );
+  const [localForegroundColor, setLocalForegroundColor] = useState(
+    table.params.foregroundColor
+  );
+  const [localAccentColor, setLocalAccentColor] = useState(
+    table.params.accentColor
+  );
+
   const baseThemeMutation = useOptimisticMutation({
     mutationFn: async ({
       newBaseTheme,
@@ -78,15 +89,28 @@ const General = ({ table, tableId }: { table: TableType; tableId: string }) => {
     }) => updateParams(tableData, newParams),
     queryKey: ['tables', tableId],
     onMutate: async ({ tableData, newParams }) => {
-      queryClient.setQueryData(['tables', tableId], (old: TableType) => ({
-        ...old,
-        params: {
-          ...tableData.params,
-          ...newParams,
-        },
-      }));
+      queryClient.setQueryData(['tables', tableId], (old: TableType) => {
+        if ('backgroundColor' in newParams) {
+          setLocalBackgroundColor(newParams.backgroundColor as string);
+        }
+        if ('foregroundColor' in newParams) {
+          setLocalForegroundColor(newParams.foregroundColor as string);
+        }
+        if ('accentColor' in newParams) {
+          setLocalAccentColor(newParams.accentColor as string);
+        }
+        return {
+          ...old,
+          params: {
+            ...tableData.params,
+            ...newParams,
+          },
+        };
+      });
     },
   });
+
+  console.log('General rendered => ', localBackgroundColor);
 
   return (
     <>
@@ -148,9 +172,11 @@ const General = ({ table, tableId }: { table: TableType; tableId: string }) => {
       </Flex>
       <ColorPicker
         showText
+        allowClear
+        defaultValue="#fff"
         label="Background Color"
         colorKey="backgroundColor"
-        value={table.params.backgroundColor}
+        value={localBackgroundColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
@@ -160,10 +186,11 @@ const General = ({ table, tableId }: { table: TableType; tableId: string }) => {
       />
       <ColorPicker
         showText
+        allowClear
         label="Foreground Color"
         colorKey="foregroundColor"
         defaultValue="#181d1f"
-        value={table.params.foregroundColor}
+        value={localForegroundColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
@@ -173,10 +200,11 @@ const General = ({ table, tableId }: { table: TableType; tableId: string }) => {
       />
       <ColorPicker
         showText
+        allowClear
         label="Accent Color"
         colorKey="accentColor"
         defaultValue="#2196f3"
-        value={table.params.accentColor}
+        value={localAccentColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,

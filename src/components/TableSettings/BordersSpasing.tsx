@@ -12,6 +12,7 @@ import { updateParams } from '../../apis';
 import { queryClient } from '../../main';
 import { TableType, ThemeParamsType } from '../../types/Table';
 import { useOptimisticMutation } from '../../hooks/useOptimisticMutation';
+import { useState } from 'react';
 
 const BordersSpacing = ({
   table,
@@ -20,6 +21,10 @@ const BordersSpacing = ({
   table: TableType;
   tableId: string;
 }) => {
+  const [localBorderColor, setLocalBorderColor] = useState(
+    table.params.borderColor
+  );
+
   const paramsMutation = useOptimisticMutation({
     mutationFn: async ({
       tableData,
@@ -30,13 +35,18 @@ const BordersSpacing = ({
     }) => updateParams(tableData, newParams),
     queryKey: ['tables', tableId],
     onMutate: async ({ tableData, newParams }) => {
-      queryClient.setQueryData(['tables', tableId], (old: TableType) => ({
-        ...old,
-        params: {
-          ...tableData.params,
-          ...newParams,
-        },
-      }));
+      queryClient.setQueryData(['tables', tableId], (old: TableType) => {
+        if ('borderColor' in newParams) {
+          setLocalBorderColor(newParams.borderColor as string);
+        }
+        return {
+          ...old,
+          params: {
+            ...tableData.params,
+            ...newParams,
+          },
+        };
+      });
     },
   });
 
@@ -44,10 +54,11 @@ const BordersSpacing = ({
     <>
       <ColorPicker
         showText
+        allowClear
         label="Border Color"
         colorKey="borderColor"
-        defaultValue="#181d1f"
-        value={table.params.borderColor}
+        defaultValue="#181d1f26"
+        value={localBorderColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,

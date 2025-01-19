@@ -12,6 +12,7 @@ import { Flex } from 'antd';
 import Select from '../../ui/Select';
 import { useOptimisticMutation } from '../../hooks/useOptimisticMutation';
 import { FontFamilyType, TableType, ThemeParamsType } from '../../types/Table';
+import { useState } from 'react';
 
 export const getFontFamilyValue = (fontFamily?: FontFamilyType): string => {
   if (!fontFamily) return FONT_FAMILY_OPTIONS.at(0)!.value;
@@ -27,6 +28,13 @@ export const getFontFamilyValue = (fontFamily?: FontFamilyType): string => {
 };
 
 const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
+  const [localHeaderTextColor, setLocalHeaderTextColor] = useState(
+    table.params.headerTextColor
+  );
+  const [localHeaderBackgroundColor, setLocalHeaderBackgroundColor] = useState(
+    table.params.headerBackgroundColor
+  );
+
   const paramsMutation = useOptimisticMutation({
     mutationFn: async ({
       tableData,
@@ -37,13 +45,23 @@ const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
     }) => updateParams(tableData, newParams),
     queryKey: ['tables', tableId],
     onMutate: async ({ tableData, newParams }) => {
-      queryClient.setQueryData(['tables', tableId], (old: TableType) => ({
-        ...old,
-        params: {
-          ...tableData.params,
-          ...newParams,
-        },
-      }));
+      queryClient.setQueryData(['tables', tableId], (old: TableType) => {
+        if ('headerTextColor' in newParams) {
+          setLocalHeaderTextColor(newParams.headerTextColor as string);
+        }
+        if ('headerBackgroundColor' in newParams) {
+          setLocalHeaderBackgroundColor(
+            newParams.headerBackgroundColor as string
+          );
+        }
+        return {
+          ...old,
+          params: {
+            ...tableData.params,
+            ...newParams,
+          },
+        };
+      });
     },
   });
 
@@ -51,9 +69,10 @@ const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
     <>
       <ColorPicker
         showText
+        allowClear
         label="Text Color"
         colorKey="headerTextColor"
-        value={table.params.headerTextColor}
+        value={localHeaderTextColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
@@ -62,9 +81,10 @@ const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
         }}
       />
       <ColorPicker
+        allowClear
         label="Background Color"
         colorKey="headerBackgroundColor"
-        value={table.params.headerBackgroundColor}
+        value={localHeaderBackgroundColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,

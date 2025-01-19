@@ -19,7 +19,7 @@ import {
   updateRow,
 } from './apis';
 import TableActions from './components/TableActions';
-import { Button, Empty, Typography } from 'antd';
+import { Button, Typography } from 'antd';
 import { useOptimisticMutation } from './hooks/useOptimisticMutation';
 import { queryClient } from './main';
 import { TableType } from './types/Table';
@@ -28,6 +28,9 @@ import { ColumnCellType, ColumnType } from './types/Column';
 import { RowType, RowDataType } from './types/Row';
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import { useTableContext } from './hooks/useTableContext';
+import Empty from './ui/Empty';
+
+const { Text: AntText } = Typography;
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -137,16 +140,19 @@ const AgGrid = () => {
   if (!table) {
     return (
       <Empty
-        image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
-        imageStyle={{ height: 80, marginTop: 40 }}
+        style={{
+          paddingTop: 120,
+          background: 'white',
+          height: '100%',
+        }}
         description={
-          <Typography.Text>
+          <AntText>
             There is no created table yet. Click the button below and create
             one.
-          </Typography.Text>
+          </AntText>
         }
       >
-        <Button type="primary">Create Now</Button>
+        <Button type="primary">Create Now</Button>;
       </Empty>
     );
   }
@@ -182,13 +188,8 @@ const AgGrid = () => {
                 event.target.lastElementChild?.firstChild as HTMLSpanElement
               )?.id;
               deleteColumn(+columnId);
-            } else {
-              console.log('There is no event!');
             }
           }}
-          // onColumnMoved={(event) => {
-          //   console.log('Event => ', event);
-          // }}
         />
       </AgGridContainer>
     </>
