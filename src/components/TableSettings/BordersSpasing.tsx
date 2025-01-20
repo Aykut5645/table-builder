@@ -94,6 +94,10 @@ const BordersSpacing = ({
         defaultValue={8}
         prefix={<ColumnHeightOutlined />}
         value={table.params.spacing}
+        formatter={(value) => (value !== undefined ? `${value}px` : '')}
+        parser={(value) =>
+          value ? parseFloat(value.replace('px', '').trim()) : 0
+        }
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
@@ -108,6 +112,10 @@ const BordersSpacing = ({
           defaultValue={8}
           prefix={<RadiusUpleftOutlined />}
           value={table.params.wrapperBorderRadius}
+          formatter={(value) => (value !== undefined ? `${value}px` : '')}
+          parser={(value) =>
+            value ? parseFloat(value.replace('px', '').trim()) : 0
+          }
           saveValue={(value) => {
             paramsMutation.mutate({
               tableData: table,
@@ -121,6 +129,10 @@ const BordersSpacing = ({
           defaultValue={4}
           prefix={<RadiusUpleftOutlined />}
           value={table.params.borderRadius}
+          formatter={(value) => (value !== undefined ? `${value}px` : '')}
+          parser={(value) =>
+            value ? parseFloat(value.replace('px', '').trim()) : 0
+          }
           saveValue={(value) => {
             paramsMutation.mutate({
               tableData: table,

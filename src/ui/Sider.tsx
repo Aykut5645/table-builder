@@ -2,15 +2,19 @@ import { Layout, theme } from 'antd';
 
 import Title from './Title.tsx';
 import TableSettings from '../components/TableSettings/TableSettings.tsx';
+import { useTableContext } from '../hooks/useTableContext';
 
 const { Sider: AntSider } = Layout;
 
 const Sider = ({ collapsed }: { collapsed: boolean }) => {
+  const { tableId } = useTableContext();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
   const titleColor = colorBgContainer === '#ffffff' ? 'black' : 'white';
+
+  if (!tableId) return null;
 
   return (
     <AntSider

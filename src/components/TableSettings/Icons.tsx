@@ -62,6 +62,10 @@ const Icons = ({ table, tableId }: { table: TableType; tableId: string }) => {
         inputKey="iconSize"
         defaultValue={16}
         value={table.params.iconSize}
+        formatter={(value) => (value !== undefined ? `${value}px` : '')}
+        parser={(value) =>
+          value ? parseFloat(value.replace('px', '').trim()) : 0
+        }
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,

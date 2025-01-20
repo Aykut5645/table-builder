@@ -86,6 +86,10 @@ const Cells = ({ table, tableId }: { table: TableType; tableId: string }) => {
             ? Math.round(table.params.rowVerticalPaddingScale * 100)
             : 100
         }
+        formatter={(value) => (value !== undefined ? `${value}%` : '')}
+        parser={(value) =>
+          value ? parseFloat(value.replace('%', '').trim()) : 0
+        }
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
@@ -104,6 +108,10 @@ const Cells = ({ table, tableId }: { table: TableType; tableId: string }) => {
           table.params.cellHorizontalPaddingScale
             ? Math.round(table.params.cellHorizontalPaddingScale * 100)
             : 100
+        }
+        formatter={(value) => (value !== undefined ? `${value}%` : '')}
+        parser={(value) =>
+          value ? parseFloat(value.replace('%', '').trim()) : 0
         }
         saveValue={(value) => {
           paramsMutation.mutate({

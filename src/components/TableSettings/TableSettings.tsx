@@ -16,6 +16,7 @@ const TableSettings = () => {
   const { data: table, isLoading } = useQuery<TableType>({
     queryKey: ['tables', tableId],
     queryFn: () => fetchTableById(tableId),
+    enabled: !!tableId,
   });
 
   if (isLoading) {

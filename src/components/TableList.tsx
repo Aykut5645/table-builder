@@ -4,10 +4,11 @@ import { Flex, Select } from 'antd';
 
 import { fetchTables } from '../apis';
 import { useTableContext } from '../hooks/useTableContext';
+import { TableType } from '../types/Table';
 
 const TableList = () => {
   const { tableId, setTableId } = useTableContext();
-  const { data: tables = [], isLoading } = useQuery({
+  const { data: tables = [], isLoading } = useQuery<TableType[]>({
     queryKey: ['tables'],
     queryFn: fetchTables,
   });
@@ -15,7 +16,7 @@ const TableList = () => {
 
   useEffect(() => {
     if (!tableId && tables.length > 0) {
-      setTableId(firstTableId);
+      setTableId(firstTableId!);
     }
   }, [firstTableId, tableId, tables]);
 
@@ -24,6 +25,7 @@ const TableList = () => {
   };
 
   if (isLoading) return <div>Loading...</div>;
+  if (tables.length === 0) return <div>No tables found.</div>;
 
   return (
     <Flex

@@ -19,7 +19,6 @@ import {
   updateRow,
 } from './apis';
 import TableActions from './components/TableActions';
-import { Button, Typography } from 'antd';
 import { useOptimisticMutation } from './hooks/useOptimisticMutation';
 import { queryClient } from './main';
 import { TableType } from './types/Table';
@@ -28,9 +27,8 @@ import { ColumnCellType, ColumnType } from './types/Column';
 import { RowType, RowDataType } from './types/Row';
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import { useTableContext } from './hooks/useTableContext';
-import Empty from './ui/Empty';
-
-const { Text: AntText } = Typography;
+import EmptyTables from './components/EmptyTables';
+import { Flex, Spin } from 'antd';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -41,16 +39,19 @@ const AgGrid = () => {
   const { data: table, isLoading: isLoadingTable } = useQuery<TableType>({
     queryKey: ['tables', tableId],
     queryFn: () => fetchTableById(tableId),
+    enabled: !!tableId,
   });
   const { data: columns = [], isLoading: isLoadingColumns } = useQuery<
     ColumnType[]
   >({
     queryKey: ['columns', tableId],
     queryFn: () => fetchColumns(tableId),
+    enabled: !!tableId,
   });
   const { data: rows = [], isLoading: isLoadingRows } = useQuery<RowType[]>({
     queryKey: ['rows', tableId],
     queryFn: () => fetchRows(tableId),
+    enabled: !!tableId,
   });
 
   const theme = useMemo(() => {
@@ -104,6 +105,16 @@ const AgGrid = () => {
     },
   });
 
+  const deleteColumnMutation = useOptimisticMutation({
+    mutationFn: deleteColumn,
+    queryKey: ['columns', tableId],
+    onMutate: async (columnId: number) => {
+      queryClient.setQueryData(['columns', tableId], (old: ColumnType[]) => {
+        return old.filter((x: ColumnType) => x.id !== columnId);
+      });
+    },
+  });
+
   // AG Grid valueSetter
   const handleValueSetter: ValueSetterFunc<RowDataType> = useCallback(
     (params) => {
@@ -134,32 +145,21 @@ const AgGrid = () => {
   );
 
   if (isLoadingTable || isLoadingColumns || isLoadingRows) {
-    return <div>Loading...</div>;
-  }
-
-  if (!table) {
     return (
-      <Empty
+      <Flex
+        align="center"
+        gap="middle"
+        justify="center"
         style={{
           paddingTop: 120,
-          background: 'white',
-          height: '100%',
         }}
-        description={
-          <AntText>
-            There is no created table yet. Click the button below and create
-            one.
-          </AntText>
-        }
       >
-        <Button type="primary">Create Now</Button>;
-      </Empty>
+        <Spin size="large" />
+      </Flex>
     );
   }
 
-  // console.log('Table => ', table);
-  // console.log('Rows => ', rows);
-  // console.log('Columns => ', columns);
+  if (!table) return <EmptyTables />;
 
   return (
     <>
@@ -187,7 +187,7 @@ const AgGrid = () => {
               const columnId = (
                 event.target.lastElementChild?.firstChild as HTMLSpanElement
               )?.id;
-              deleteColumn(+columnId);
+              deleteColumnMutation.mutate(+columnId);
             }
           }}
         />

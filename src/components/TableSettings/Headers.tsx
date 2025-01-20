@@ -68,11 +68,12 @@ const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
   return (
     <>
       <ColorPicker
-        showText
         allowClear
-        label="Text Color"
-        colorKey="headerTextColor"
-        value={localHeaderTextColor}
+        showText
+        label="Background Color"
+        colorKey="headerBackgroundColor"
+        defaultValue="#fbfbfb"
+        value={localHeaderBackgroundColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
@@ -81,10 +82,12 @@ const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
         }}
       />
       <ColorPicker
+        showText
         allowClear
-        label="Background Color"
-        colorKey="headerBackgroundColor"
-        value={localHeaderBackgroundColor}
+        label="Text Color"
+        colorKey="headerTextColor"
+        defaultValue="#181d1f"
+        value={localHeaderTextColor}
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
@@ -114,6 +117,10 @@ const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
           label="Font Size"
           inputKey="headerFontSize"
           defaultValue={14}
+          formatter={(value) => (value !== undefined ? `${value}px` : '')}
+          parser={(value) =>
+            value ? parseFloat(value.replace('px', '').trim()) : 0
+          }
           saveValue={(value) => {
             paramsMutation.mutate({
               tableData: table,
@@ -125,9 +132,9 @@ const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
       <Select
         label="Font weight"
         value={
-          table.params.headerFontWeight || FONT_WEIGHT_OPTIONS.at(3)!.value
+          table.params.headerFontWeight || FONT_WEIGHT_OPTIONS.at(4)!.value
         }
-        defaultValue={FONT_WEIGHT_OPTIONS.at(3)!.value}
+        defaultValue={FONT_WEIGHT_OPTIONS.at(4)!.value}
         selectKey="headerFontWeight"
         options={FONT_WEIGHT_OPTIONS}
         saveValue={(value) => {
@@ -149,6 +156,10 @@ const Headers = ({ table, tableId }: { table: TableType; tableId: string }) => {
             : 100
         }
         defaultValue={100}
+        formatter={(value) => (value !== undefined ? `${value}%` : '')}
+        parser={(value) =>
+          value ? parseFloat(value.replace('%', '').trim()) : 0
+        }
         saveValue={(value) => {
           paramsMutation.mutate({
             tableData: table,
