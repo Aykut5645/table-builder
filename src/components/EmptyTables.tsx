@@ -23,7 +23,7 @@ const EmptyTables = () => {
         style={{
           paddingTop: 120,
           background: 'white',
-          height: '100%',
+          height: '100vh',
         }}
         description={
           <AntText>
