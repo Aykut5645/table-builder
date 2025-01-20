@@ -18,9 +18,10 @@ import CreateColumn from './CreateColumn';
 
 type TableActionsProps = {
   gridRef: RefObject<AgGridReact<RowType> | null>;
+  columnsCount: number;
 };
 
-const TableActions = ({ gridRef }: TableActionsProps) => {
+const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const { tableId, editMode, toggleEditMode } = useTableContext();
   const [isCreatingColumnModalOpen, setIsCreatingColumnModalOpen] =
@@ -116,7 +117,7 @@ const TableActions = ({ gridRef }: TableActionsProps) => {
     setIsCreatingTableModalOpen((prevValue) => !prevValue);
   };
 
-  const hasColumns = Boolean(gridRef?.current?.api?.getColumns()?.length);
+  const hasColumns = Boolean(columnsCount);
 
   return (
     <Flex justify="space-between" wrap="wrap" style={{ marginBottom: 20 }}>

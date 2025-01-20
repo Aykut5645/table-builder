@@ -3,6 +3,7 @@ import { ColumnType } from '../types/Column';
 import { useOptimisticMutation } from '../hooks/useOptimisticMutation';
 import { addColumn } from '../apis';
 import { queryClient } from '../main';
+import { useEffect } from 'react';
 
 type CreateColumnProps = {
   tableId: string;
@@ -16,6 +17,12 @@ const CreateColumn = ({
   toggleModalOpen,
 }: CreateColumnProps) => {
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (isModalOpen) {
+      form.resetFields();
+    }
+  }, [isModalOpen, form]);
 
   const addColumnMutation = useOptimisticMutation({
     mutationFn: async ({

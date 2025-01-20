@@ -163,7 +163,7 @@ const AgGrid = () => {
 
   return (
     <>
-      <TableActions gridRef={gridRef} />
+      <TableActions gridRef={gridRef} columnsCount={columns.length} />
       <DimensionInputs
         tHeight={table.dimensions.height || 0}
         tWidth={table.dimensions.width || 0}
