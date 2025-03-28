@@ -29,12 +29,13 @@ import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
 import { useTableContext } from './hooks/useTableContext';
 import EmptyTables from './components/EmptyTables';
 import { Flex, Spin } from 'antd';
+import GridFeatures from './components/GridFeatures';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const AgGrid = () => {
   const gridRef = useRef<AgGridReact<RowType>>(null);
-  const { tableId } = useTableContext();
+  const { tableId, selectedFeatures } = useTableContext();
 
   const { data: table, isLoading: isLoadingTable } = useQuery<TableType>({
     queryKey: ['tables', tableId],
@@ -79,15 +80,16 @@ const AgGrid = () => {
   const columnDefs: ColDef[] = useMemo(() => {
     if (!columns) return [];
 
-    return columns.map((col) => ({
+    return columns.map((col, i) => ({
       field: col.field,
+      rowDrag: selectedFeatures.rowDrag && i === 0,
       headerName: col.headerName,
       cellDataType: CELL_TYPES[col.type as ColumnCellType],
       headerComponentParams: {
         id: col.id,
       },
     }));
-  }, [columns]);
+  }, [columns, selectedFeatures.rowDrag]);
 
   const components = useMemo(() => {
     return { agColumnHeader: CustomHeader };
@@ -139,6 +141,8 @@ const AgGrid = () => {
       filter: true,
       editable: true,
       sortable: false,
+      resizable: selectedFeatures.columnResizing,
+      floatingFilter: selectedFeatures.floatingFilters,
       valueSetter: handleValueSetter,
     }),
     [handleValueSetter]
@@ -164,6 +168,7 @@ const AgGrid = () => {
   return (
     <>
       <TableActions gridRef={gridRef} columnsCount={columns.length} />
+      <GridFeatures />
       <DimensionInputs
         tHeight={table.dimensions.height || 0}
         tWidth={table.dimensions.width || 0}
@@ -175,6 +180,9 @@ const AgGrid = () => {
         <AgGridReact
           ref={gridRef}
           theme={theme}
+          rowDragManaged={true}
+          enableRtl={selectedFeatures.enableRtl}
+          columnHoverHighlight={selectedFeatures.columnHoverHighlight}
           components={components}
           rowData={rows?.map((x) => ({ id: x.id, ...x.data }))}
           columnDefs={columnDefs}

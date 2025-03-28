@@ -72,3 +72,21 @@ html {
 #myGrid {
   margin: 20px auto;
 }
+
+.ant-collapse {
+  border: none;
+
+  .ant-collapse-item {
+    border: none;
+
+    .ant-collapse-header {
+      background: white;
+      letter-spacing: 1px;
+      font-size: 15px;
+    }
+  }
+}
+
+.ag-cell-inline-editing input {
+  padding-left: 8px;
+}

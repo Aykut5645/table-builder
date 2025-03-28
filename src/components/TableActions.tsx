@@ -22,8 +22,8 @@ type TableActionsProps = {
 };
 
 const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
-  const [isDownloading, setIsDownloading] = useState(false);
   const { tableId, editMode, toggleEditMode } = useTableContext();
+  const [isDownloading, setIsDownloading] = useState(false);
   const [isCreatingColumnModalOpen, setIsCreatingColumnModalOpen] =
     useState(false);
   const [isCreatingTableModalOpen, setIsCreatingTableModalOpen] =
@@ -61,14 +61,16 @@ const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
     },
   });
 
-  const handleAddRow = () => {
+  const handleAddRow = async () => {
     const existingColumns = gridRef.current?.api.getColumns();
     const rowData = existingColumns?.reduce((acc, column) => {
       const cellDataType = column.getUserProvidedColDef()?.cellDataType;
       const colId = column.getColId();
+
       if (cellDataType === 'boolean') acc[colId] = false;
       else if (cellDataType === 'number') acc[colId] = 0;
       else acc[colId] = '';
+
       return acc;
     }, {} as RowDataType);
 
@@ -88,7 +90,7 @@ const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
 
   const captureTableAsImage = () => {
     setIsDownloading(true);
-    const tableElement = document.querySelector('.ag-root') as HTMLDivElement;
+    const tableElement = document.querySelector('#myGrid') as HTMLDivElement;
 
     if (tableElement) {
       toPng(tableElement)
@@ -168,7 +170,12 @@ const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
           </>
         )}
 
-        <Button onClick={handleToggleCreatingTableModal}>Create table</Button>
+        <Button
+          onClick={handleToggleCreatingTableModal}
+          icon={<PlusOutlined />}
+        >
+          New table
+        </Button>
       </Space>
 
       <Button

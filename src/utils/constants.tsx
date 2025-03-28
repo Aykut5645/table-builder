@@ -106,3 +106,10 @@ export const CELL_TYPES = {
   boolean: 'boolean',
 };
 
+export const GRID_OPTION_TYPES = {
+  columnHoverHighlight: 'Column Hover',
+  floatingFilters: 'Floating Filters',
+  enableRtl: 'Right To Left',
+  rowDrag: 'Row Drag',
+  rowSelection: 'Row Selection',
+};

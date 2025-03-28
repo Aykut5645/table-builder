@@ -3,8 +3,10 @@ import { createContext, useState, useMemo, ReactNode } from 'react';
 interface TableContextProps {
   tableId: string;
   editMode: boolean;
+  selectedFeatures: GridOptionsType;
   setTableId: (id: string) => void;
   clearTableId: () => void;
+  setSelectedFeatures: (data: GridOptionsType) => void;
   toggleEditMode: () => void;
 }
 
@@ -12,8 +14,27 @@ export const TableContext = createContext<TableContextProps | undefined>(
   undefined
 );
 
+export type GridOptionsType = {
+  floatingFilters: boolean;
+  enableRtl: boolean;
+  rowSelection: boolean;
+  rowDrag: boolean;
+  columnHoverHighlight: boolean;
+  columnResizing: boolean;
+};
+
 const TableProvider = ({ children }: { children: ReactNode }) => {
-  const getInitialTableId = () => {
+  const [editMode, setEditMode] = useState(false);
+  const [selectedFeatures, setSelectedFeatures] = useState<GridOptionsType>({
+    columnHoverHighlight: false,
+    columnResizing: false,
+    floatingFilters: false,
+    enableRtl: false,
+    rowSelection: true,
+    rowDrag: false,
+  });
+
+  const [tableId, setTableId] = useState<string>(() => {
     try {
       const item = localStorage.getItem('tableId');
       return item ? JSON.parse(item) : '';
@@ -21,10 +42,7 @@ const TableProvider = ({ children }: { children: ReactNode }) => {
       console.error('Error reading localStorage key tableId:', error);
       return '';
     }
-  };
-
-  const [editMode, setEditMode] = useState(false);
-  const [tableId, setTableId] = useState<string>(getInitialTableId);
+  });
 
   const handleTableId = (value: string) => {
     try {
@@ -48,15 +66,21 @@ const TableProvider = ({ children }: { children: ReactNode }) => {
     setEditMode((prevState) => !prevState);
   };
 
+  const adjustSelectedFeatures = (data: GridOptionsType) => {
+    setSelectedFeatures(data);
+  };
+
   const value = useMemo(
     () => ({
       tableId,
       editMode,
+      selectedFeatures,
       toggleEditMode,
+      setSelectedFeatures: adjustSelectedFeatures,
       setTableId: handleTableId,
       clearTableId,
     }),
-    [tableId, editMode]
+    [tableId, editMode, selectedFeatures]
   );
 
   return (
