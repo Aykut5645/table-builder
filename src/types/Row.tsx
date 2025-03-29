@@ -1,6 +1,6 @@
 export type RowType = {
   id: number;
-  createdAt: number;
+  createdAt?: number;
   tableId: string;
   data: RowDataType;
 };

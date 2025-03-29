@@ -1,4 +1,10 @@
-import { useState, RefObject } from 'react';
+import {
+  useState,
+  RefObject,
+  useImperativeHandle,
+  forwardRef,
+  Ref,
+} from 'react';
 import { Button, Space, Flex } from 'antd';
 import { toPng } from 'html-to-image';
 import {
@@ -7,59 +13,53 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons';
 
-import { addRow, deleteSelectedRow } from '../apis';
-import { queryClient } from '../main';
-import { useOptimisticMutation } from '../hooks/useOptimisticMutation';
 import { RowDataType, RowType } from '../types/Row';
 import { AgGridReact } from 'ag-grid-react';
 import { useTableContext } from '../hooks/useTableContext';
 import CreateTable from './CreateTable';
 import CreateColumn from './CreateColumn';
+import { useAddRow } from '../hooks/useAddRow.tsx';
+import { ColDef } from 'ag-grid-community';
+import { useDeleteRow } from '../hooks/useDeleteRow.tsx';
 
 type TableActionsProps = {
   gridRef: RefObject<AgGridReact<RowType> | null>;
   columnsCount: number;
 };
 
-const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
+const TableActions = (
+  { gridRef, columnsCount }: TableActionsProps,
+  ref: Ref<{ onRowSelected: () => void }>
+) => {
   const { tableId, editMode, toggleEditMode } = useTableContext();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isCreatingColumnModalOpen, setIsCreatingColumnModalOpen] =
     useState(false);
   const [isCreatingTableModalOpen, setIsCreatingTableModalOpen] =
     useState(false);
+  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
 
-  const addRowMutation = useOptimisticMutation({
-    mutationFn: async ({
-      rowData,
-      tableId,
-    }: {
-      rowData: RowDataType;
-      tableId: string;
-    }) => addRow(rowData, tableId),
-    queryKey: ['rows', tableId],
-    onMutate: async ({
-      rowData,
-      tableId,
-    }: {
-      rowData: RowDataType;
-      tableId: string;
-    }) => {
-      queryClient.setQueryData(['rows', tableId], (old: RowType[]) => {
-        return [...old, { tableId, data: rowData }];
-      });
-    },
-  });
+  const handleRowAdded = () => {
+    if (gridRef && gridRef.current) {
+      const renderedNodes = gridRef.current.api.getRenderedNodes();
+      const firstColumn = gridRef.current.api.getColumnDefs()?.at(0) as ColDef;
+      const lastRowNode = renderedNodes[renderedNodes.length - 1];
+      gridRef.current.api.ensureNodeVisible(lastRowNode);
 
-  const deleteRowMutation = useOptimisticMutation({
-    mutationFn: deleteSelectedRow,
-    queryKey: ['rows', tableId],
-    onMutate: async (rowId: number) => {
-      queryClient.setQueryData(['rows', tableId], (old: RowType[]) => {
-        return old.filter((x: RowType) => x.id !== rowId);
-      });
-    },
-  });
+      setTimeout(() => {
+        gridRef!.current!.api.startEditingCell({
+          rowIndex:
+            lastRowNode !== undefined
+              ? (lastRowNode.rowIndex as number) + 1
+              : 0,
+          colKey: firstColumn!.colId as string,
+        });
+      }, 300);
+    }
+  };
+
+  const { isAddingRow, addRow } = useAddRow(handleRowAdded);
+  const { isDeletingRow, deleteRow } = useDeleteRow();
 
   const handleAddRow = async () => {
     const existingColumns = gridRef.current?.api.getColumns();
@@ -74,17 +74,15 @@ const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
       return acc;
     }, {} as RowDataType);
 
-    if (rowData) addRowMutation.mutate({ rowData, tableId });
+    if (rowData) {
+      addRow({ rowData, tableId });
+    }
   };
 
   const handleDeleteRow = () => {
-    const selectedRow = gridRef.current?.api
-      .getSelectedNodes()
-      .map((node) => node)
-      .at(0);
-
-    if (selectedRow && selectedRow.data) {
-      deleteRowMutation.mutate(selectedRow.data.id);
+    if (selectedRowId) {
+      deleteRow(selectedRowId);
+      setSelectedRowId(null);
     }
   };
 
@@ -119,6 +117,23 @@ const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
     setIsCreatingTableModalOpen((prevValue) => !prevValue);
   };
 
+  const onRowSelected = () => {
+    const selectedRow = gridRef.current?.api
+      .getSelectedNodes()
+      .map((node) => node)
+      .at(0);
+
+    if (selectedRow && selectedRow.data) {
+      setSelectedRowId(selectedRow.data.id);
+    } else {
+      setSelectedRowId(null);
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    onRowSelected,
+  }));
+
   const hasColumns = Boolean(columnsCount);
 
   return (
@@ -151,17 +166,21 @@ const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
               color="primary"
               variant="outlined"
               onClick={hasColumns ? handleAddRow : undefined}
+              loading={isAddingRow}
             >
               Row
             </Button>
-            <Button
-              icon={<DeleteOutlined />}
-              color="danger"
-              variant="outlined"
-              onClick={handleDeleteRow}
-            >
-              Row
-            </Button>
+            {selectedRowId && (
+              <Button
+                icon={<DeleteOutlined />}
+                color="danger"
+                variant="outlined"
+                onClick={handleDeleteRow}
+                loading={isDeletingRow}
+              >
+                Row
+              </Button>
+            )}
             <Button onClick={toggleEditMode}>
               {editMode && hasColumns
                 ? 'Stop editing...'
@@ -190,4 +209,4 @@ const TableActions = ({ gridRef, columnsCount }: TableActionsProps) => {
   );
 };
 
-export default TableActions;
+export default forwardRef(TableActions);

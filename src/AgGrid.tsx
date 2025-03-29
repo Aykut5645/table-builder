@@ -1,3 +1,4 @@
+// AgGrid.tsx
 import { useCallback, useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AgGridReact } from 'ag-grid-react';
@@ -35,6 +36,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 const AgGrid = () => {
   const gridRef = useRef<AgGridReact<RowType>>(null);
+  const tableActionsRef = useRef<{ onRowSelected: () => void }>(null);
   const { tableId, selectedFeatures } = useTableContext();
 
   const { data: table, isLoading: isLoadingTable } = useQuery<TableType>({
@@ -117,7 +119,6 @@ const AgGrid = () => {
     },
   });
 
-  // AG Grid valueSetter
   const handleValueSetter: ValueSetterFunc<RowDataType> = useCallback(
     (params) => {
       const {
@@ -145,7 +146,11 @@ const AgGrid = () => {
       floatingFilter: selectedFeatures.floatingFilters,
       valueSetter: handleValueSetter,
     }),
-    [handleValueSetter]
+    [
+      handleValueSetter,
+      selectedFeatures.columnResizing,
+      selectedFeatures.floatingFilters,
+    ]
   );
 
   if (isLoadingTable || isLoadingColumns || isLoadingRows) {
@@ -167,7 +172,11 @@ const AgGrid = () => {
 
   return (
     <>
-      <TableActions gridRef={gridRef} columnsCount={columns.length} />
+      <TableActions
+        ref={tableActionsRef}
+        gridRef={gridRef}
+        columnsCount={columns.length}
+      />
       <GridFeatures />
       <DimensionInputs
         tHeight={table.dimensions.height || 0}
@@ -189,7 +198,7 @@ const AgGrid = () => {
           defaultColDef={defaultColDef}
           domLayout={table.dimensions.height ? undefined : 'autoHeight'}
           loadThemeGoogleFonts
-          rowSelection="single"
+          rowSelection={{ mode: 'singleRow' }}
           onDragStopped={(event) => {
             if (event.target?.classList.contains('ag-header-cell-moving')) {
               const columnId = (
@@ -197,6 +206,9 @@ const AgGrid = () => {
               )?.id;
               deleteColumnMutation.mutate(+columnId);
             }
+          }}
+          onSelectionChanged={() => {
+            tableActionsRef.current?.onRowSelected();
           }}
         />
       </AgGridContainer>
